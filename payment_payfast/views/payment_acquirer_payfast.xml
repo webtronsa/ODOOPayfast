@@ -1,0 +1,39 @@
+<odoo>
+    <record id="payment_acquirer_payfast_form" model="ir.ui.view">
+        <field name="name">payment.acquirer.payfast.form</field>
+        <field name="model">payment.acquirer</field>
+        <field name="inherit_id" ref="payment.view_payment_acquirer_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='provider']" position="after">
+                <div attrs="{'invisible': [('provider', '!=', 'payfast')]}">
+                    <field name="payfast_merchant_id"/>
+                    <field name="payfast_merchant_key"/>
+                    <field name="payfast_passphrase"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="payment_acquirer_payfast_test_signature" model="ir.actions.server">
+        <field name="name">Test PayFast Signature</field>
+        <field name="model_id" ref="payment.model_payment_acquirer"/>
+        <field name="binding_model_id" ref="payment.model_payment_acquirer"/>
+        <field name="state">code</field>
+        <field name="code">
+action = record.payfast_test_signature()
+if action['result']:
+    message = f"<b>SUCCESS:</b> {action['status']}<br/>Test data: {action['data']}<br/>Signature: {action['signature']}"
+else:
+    message = f"<b>ERROR:</b> {action['status']}<br/>Test data: {action['data']}<br/>Signature: {action['signature']}"
+return {
+    'type': 'ir.actions.act_window',
+    'name': 'Signature Test Result',
+    'view_mode': 'form',
+    'res_model': 'payment.acquirer',
+    'res_id': record.id,
+    'target': 'new',
+    'context': {'default_message': message}
+}
+        </field>
+    </record>
+</odoo>
